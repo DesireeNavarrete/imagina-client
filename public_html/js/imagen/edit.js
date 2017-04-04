@@ -33,7 +33,7 @@ moduloImagen.controller('ImagenEditController', ['$scope', '$routeParams', '$loc
         $scope.obtitle = imagenService.getObTitle();
         $scope.icon = imagenService.getIcon();
         $scope.ob = imagenService.getTitle();
-        $scope.title = "Editando un " + $scope.obtitle;
+        $scope.title = "Editando una " + $scope.obtitle;
         $scope.op = "plist";
         $scope.status = null;
         $scope.error = true;
@@ -49,17 +49,21 @@ moduloImagen.controller('ImagenEditController', ['$scope', '$routeParams', '$loc
                 if (response.data.status == 200) {
                     $scope.status = null;
                     $scope.bean = response.data.message;
-                } else {
-                    $scope.status = "Error en la recepción de datos del servidor";
+                } else {    
+                    $scope.status = "Error en la recepción de datos del servidor1";
                 }
             } else {
-                $scope.status = "Error en la recepción de datos del servidor";
+                $scope.status = "Error en la recepción de datos del servidor2";
             }
         }).catch(function (data) {
-            $scope.status = "Error en la recepción de datos del servidor";
+            $scope.status = "Error en la recepción de datos del servidor3";
         });
         $scope.save = function () {
-           
+            if (!$scope.bean.obj_usuario.id > 0) {
+                $scope.bean.obj_usuario.id = null;
+            }
+            
+
 
             var jsonToSend = {json: JSON.stringify(serverService.array_identificarArray($scope.bean))};
             serverService.promise_setOne($scope.ob, jsonToSend).then(function (response) {
@@ -97,20 +101,5 @@ moduloImagen.controller('ImagenEditController', ['$scope', '$routeParams', '$loc
                 $scope.bean[nameForeign].id = modalResult;
             });
         };
-        $scope.$watch('bean.obj_usuario.id', function () {
-            if ($scope.bean) {
-                if ($scope.bean.obj_usuario.id) {
-                    serverService.promise_getOne('usuario', $scope.bean.obj_usuario.id).then(function (response) {
-                        var old_id = $scope.bean.obj_usuario.id;
-                        if (response.data.message.id != 0) {
-                            $scope.outerForm.obj_usuario.$setValidity('exists', true);
-                            $scope.bean.obj_usuario = response.data.message;
-                        } else {
-                            $scope.outerForm.obj_usuario.$setValidity('exists', false);
-                            $scope.bean.obj_usuario.id = old_id;
-                        }
-                    });
-                }
-            }
-        });
+
     }]);

@@ -25,14 +25,15 @@
  * THE SOFTWARE.
  *
  */
-'strict';
+
+'use strict';
 moduloComentario.controller('ComentarioEditController', ['$scope', '$routeParams', '$location', 'comentarioService', 'serverService', '$filter', '$uibModal',
     function ($scope, $routeParams, $location, comentarioService, serverService, $filter, $uibModal) {
         $scope.fields = comentarioService.getFields();
         $scope.obtitle = comentarioService.getObTitle();
         $scope.icon = comentarioService.getIcon();
         $scope.ob = comentarioService.getTitle();
-        $scope.title = "Editando un " + $scope.obtitle;
+        $scope.title = "Editando una " + $scope.obtitle;
         $scope.op = "plist";
         $scope.status = null;
         $scope.error = true;
@@ -43,7 +44,7 @@ moduloComentario.controller('ComentarioEditController', ['$scope', '$routeParams
         $scope.show_obj_usuario = true;
         //---
         $scope.bean.obj_imagen = {"id": 0};
-        $scope.show_obj_imagen = true;
+        $scope.showobj_imagen = true;
         //---
         $scope.id = $routeParams.id;
         serverService.promise_getOne($scope.ob, $scope.id).then(function (response) {
@@ -52,16 +53,26 @@ moduloComentario.controller('ComentarioEditController', ['$scope', '$routeParams
                     $scope.status = null;
                     $scope.bean = response.data.message;
                 } else {
-                    $scope.status = "Error en la recepción de datos del servidor";
+                    $scope.status = "Error en la recepción de datos del servidor1";
                 }
             } else {
-                $scope.status = "Error en la recepción de datos del servidor";
+                $scope.status = "Error en la recepción de datos del servidor2";
             }
         }).catch(function (data) {
-            $scope.status = "Error en la recepción de datos del servidor";
+            $scope.status = "Error en la recepción de datos del servidor3";
         });
         $scope.save = function () {
-           
+            if (!$scope.bean.obj_usuario.id > 0) {
+                $scope.bean.obj_usuario.id = null;
+            }
+            if (!$scope.bean.obj_imagen.id > 0) {
+                $scope.bean.obj_imagen.id = null;
+            }
+            var arrinputdate = $scope.bean.fecha.split(" ");
+            var partes = arrinputdate[0].split("/");
+            var newDate = new Date(partes[2], partes[1] - 1, partes[0]);
+            $scope.bean.fecha = $filter('date')(newDate, "dd/MM/yyyy HH:mm");
+
 
             var jsonToSend = {json: JSON.stringify(serverService.array_identificarArray($scope.bean))};
             serverService.promise_setOne($scope.ob, jsonToSend).then(function (response) {
@@ -99,40 +110,5 @@ moduloComentario.controller('ComentarioEditController', ['$scope', '$routeParams
                 $scope.bean[nameForeign].id = modalResult;
             });
         };
-        $scope.$watch('bean.obj_usuario.id', function () {
-            if ($scope.bean) {
-                if ($scope.bean.obj_usuario.id) {
-                    serverService.promise_getOne('usuario', $scope.bean.obj_usuario.id).then(function (response) {
-                        var old_id = $scope.bean.obj_usuario.id;
-                        if (response.data.message.id != 0) {
-                            $scope.outerForm.obj_usuario.$setValidity('exists', true);
-                            $scope.bean.obj_usuario = response.data.message;
-                        } else {
-                            $scope.outerForm.obj_usuario.$setValidity('exists', false);
-                            $scope.bean.obj_usuario.id = old_id;
-                        }
-                    });
-                }
-            }
-        });
-        
-        
-        
-        
-        $scope.$watch('bean.obj_imagen.id', function () {
-            if ($scope.bean) {
-                if ($scope.bean.obj_imagen.id) {
-                    serverService.promise_getOne('imagen', $scope.bean.obj_imagen.id).then(function (response) {
-                        var old_id = $scope.bean.obj_imagen.id;
-                        if (response.data.message.id != 0) {
-                            $scope.outerForm.obj_imagen.$setValidity('exists', true);
-                            $scope.bean.obj_imagen = response.data.message;
-                        } else {
-                            $scope.outerForm.obj_imagen.$setValidity('exists', false);
-                            $scope.bean.obj_imagen.id = old_id;
-                        }
-                    });
-                }
-            }
-        });
+
     }]);
